@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>For My Valentine 💛</title>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&display=swap" rel="stylesheet">
+    <style>
+        body, html {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            /* Soft pink gradient background */
+            background: linear-gradient(135deg, #fdfbfb 0%, #ebedee 100%); 
+            font-family: 'Fredoka One', cursive, sans-serif;
+        }
+
+        /* --- UI STYLES --- */
+        .container {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(255, 255, 255, 0.95);
+            padding: 40px;
+            border-radius: 25px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            max-width: 90%;
+            width: 400px;
+            z-index: 100;
+            text-align: center;
+            transition: opacity 0.5s ease;
+        }
+
+        #nailong-img {
+            width: 220px;
+            height: auto;
+            border-radius: 15px;
+            margin-bottom: 20px;
+        }
+
+        h1 {
+            color: #d6336c;
+            margin-bottom: 30px;
+            font-size: 28px;
+        }
+
+        .buttons {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 20px;
+            position: relative;
+            min-height: 60px;
+            flex-wrap: wrap;
+        }
+
+        button {
+            padding: 12px 25px;
+            font-size: 18px;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: bold;
+            font-family: 'Fredoka One', cursive, sans-serif;
+        }
+
+        #yesBtn {
+            background-color: #ff4757;
+            color: white;
+            box-shadow: 0 4px 8px rgba(255, 71, 87, 0.3);
+            z-index: 102;
+        }
+
+        #yesBtn:hover { transform: scale(1.1); }
+
+        #noBtn {
+            background-color: #a4b0be;
+            color: white;
+            z-index: 102;
+        }
+
+        /* --- CANVAS STYLES --- */
+        canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1; 
+            pointer-events: none;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container" id="main-card">
+        <img src="image_0.png" alt="Nailong" id="nailong-img" onerror="this.src='https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExcDdtZ2FlZ2F6Z2F6Z2F6Z2F6Z2F6Z2F6Z2F6/26BRv0ThflsKCqMkA/giphy.gif'">
+        
+        <h1>Will you be my Valentine?</h1>
+        
+        <div class="buttons">
+            <button id="yesBtn" onclick="handleYes()">Yes</button>
+            <button id="noBtn" onclick="handleNo()">No</button>
+        </div>
+    </div>
+
+    <canvas id="garden"></canvas>
+
+<script>
+    /* ================= UI LOGIC ================= */
+    const noBtn = document.getElementById('noBtn');
+    const yesBtn = document.getElementById('yesBtn');
+    const mainCard = document.getElementById('main-card');
+    let noClickCount = 0;
+
+    function handleNo() {
+        noClickCount++;
+        const phrases = [
+            "No", "Are you sure?", "Really sure?", "Think again!", 
+            "Last chance!", "Surely not?", "You might regret this!", 
+            "Give it another thought!", "Are you absolutely certain?", 
+            "This could be a mistake!", "Have a heart!", "Don't be so cold!", 
+            "Change of heart?", "Wouldn't you reconsider?", 
+            "Is that your final answer?", "You're breaking my heart ;("
+        ];
+
+        noBtn.innerText = phrases[Math.min(noClickCount, phrases.length - 1)];
+
+        const currentFontSize = 18 + (noClickCount * 8); 
+        const currentPadding = 12 + (noClickCount * 3);
+        yesBtn.style.fontSize = `${currentFontSize}px`;
+        yesBtn.style.padding = `${currentPadding}px ${currentPadding * 2}px`;
+    }
+
+    function handleYes() {
+        // 1. Fade out the card
+        mainCard.style.opacity = '0';
+        
+        // 2. Remove it from display after fade
+        setTimeout(() => {
+            mainCard.style.display = 'none';
+        }, 500);
+
+        // 3. Start the bouquet animation
+        initBouquet();
+        animate();
+    }
+
+    /* ================= CANVAS / BOUQUET LOGIC ================= */
+    const canvas = document.getElementById('garden');
+    const ctx = canvas.getContext('2d');
+    let width, height;
+    let bouquet = [];
+    let bearScale = 0; // For animating the bear popping up
+
+    function resize() {
+        width = canvas.width = window.innerWidth;
+        height = canvas.height = window.innerHeight;
+    }
+    window.addEventListener('resize', resize);
+    resize();
+
+    // COLORS
+    const wrappingColor = '#8d6e63'; 
+    const wrappingInner = '#d7ccc8'; 
+    
+    const flowerPalettes = [
+        ['#ec407a', '#f48fb1', '#f8bbd0'], 
+        ['#ffccbc', '#ffab91', '#ff8a65'], 
+        ['#fff59d', '#fff9c4', '#ffffff']  
+    ];
+
+    function random(min, max) { return Math.random() * (max - min) + min; }
+
+    class Rose {
+        constructor(x, y, scale, delay) {
+            this.x = x;
+            this.y = y;
+            this.targetScale = scale;
+            this.currentScale = 0;
+            this.delay = delay;
+            this.timer = 0;
+            this.palette = flowerPalettes[Math.floor(Math.random() * flowerPalettes.length)];
+            this.rotation = random(0, Math.PI * 2);
+            this.layers = 6; 
+        }
+
+        update() {
+            this.timer++;
+            if (this.timer > this.delay) {
+                if (this.currentScale < this.targetScale) {
+                    this.currentScale += (this.targetScale - this.currentScale) * 0.03;
+                }
+            }
+        }
+
+        draw(ctx) {
+            if (this.currentScale <= 0.01) return;
+            ctx.save();
+            ctx.translate(this.x, this.y);
+            ctx.rotate(this.rotation);
+            ctx.scale(this.currentScale, this.currentScale);
+
+            for (let i = this.layers; i > 0; i--) {
+                const size = i * 9;
+                const petalCount = i * 2 + 4;
+                
+                ctx.beginPath();
+                for (let j = 0; j < petalCount; j++) {
+                    const angle = (Math.PI * 2 / petalCount) * j + (i * 0.7);
+                    const r = size;
+                    const px = Math.cos(angle) * r + random(-2,2);
+                    const py = Math.sin(angle) * r + random(-2,2);
+                    
+                    ctx.moveTo(px, py);
+                    ctx.arc(px, py, size/1.8, 0, Math.PI * 2);
+                }
+                
+                let color = i === 1 ? '#fff' : this.palette[i % this.palette.length];
+                ctx.fillStyle = color;
+                ctx.shadowColor = 'rgba(0,0,0,0.1)';
+                ctx.shadowBlur = 4;
+                ctx.fill();
+                ctx.shadowBlur = 0; 
+            }
+            ctx.restore();
+        }
+    }
+
+    class Filler {
+        constructor(x, y, delay) {
+            this.x = x;
+            this.y = y;
+            this.delay = delay;
+            this.timer = 0;
+            this.opacity = 0;
+        }
+        update() {
+            this.timer++;
+            if (this.timer > this.delay && this.opacity < 1) this.opacity += 0.02;
+        }
+        draw(ctx) {
+            if (this.opacity <= 0) return;
+            ctx.save();
+            ctx.translate(this.x, this.y);
+            ctx.globalAlpha = this.opacity;
+            ctx.fillStyle = '#fbe9e7'; 
+            
+            for(let i=0; i<6; i++) {
+                ctx.beginPath();
+                ctx.arc(random(-15,15), random(-15,15), random(2,4), 0, Math.PI*2);
+                ctx.fill();
+            }
+            ctx.restore();
+        }
+    }
+
+    // --- DRAW THE TEDDY BEAR ---
+    function drawBear(cx, cy) {
+        // Animate bear growing
+        if (bearScale < 1) bearScale += 0.01;
+        
+        ctx.save();
+        ctx.translate(cx, cy);
+        ctx.scale(bearScale, bearScale);
+        
+        // Colors
+        const furColor = '#a1887f'; // Teddy Brown
+        const snoutColor = '#d7ccc8'; // Lighter beige
+        const noseColor = '#5d4037'; // Dark brown
+        
+        // Ears
+        ctx.fillStyle = furColor;
+        ctx.beginPath(); ctx.arc(-55, -50, 25, 0, Math.PI*2); ctx.fill(); // Left Ear
+        ctx.beginPath(); ctx.arc(55, -50, 25, 0, Math.PI*2); ctx.fill(); // Right Ear
+        
+        // Inner Ears
+        ctx.fillStyle = '#bcaba4';
+        ctx.beginPath(); ctx.arc(-55, -50, 15, 0, Math.PI*2); ctx.fill();
+        ctx.beginPath(); ctx.arc(55, -50, 15, 0, Math.PI*2); ctx.fill();
+
+        // Head
+        ctx.fillStyle = furColor;
+        ctx.beginPath();
+        ctx.arc(0, 0, 70, 0, Math.PI*2); 
+        ctx.fill();
+
+        // Snout
+        ctx.fillStyle = snoutColor;
+        ctx.beginPath();
+        ctx.ellipse(0, 15, 35, 25, 0, 0, Math.PI*2);
+        ctx.fill();
+
+        // Nose
+        ctx.fillStyle = noseColor;
+        ctx.beginPath();
+        ctx.moveTo(-12, 10);
+        ctx.quadraticCurveTo(0, 20, 12, 10);
+        ctx.lineTo(0, 5);
+        ctx.fill();
+
+        // Mouth
+        ctx.strokeStyle = noseColor;
+        ctx.lineWidth = 3;
+        ctx.beginPath();
+        ctx.moveTo(0, 18);
+        ctx.lineTo(0, 30);
+        ctx.moveTo(0, 30);
+        ctx.quadraticCurveTo(-10, 35, -15, 30);
+        ctx.moveTo(0, 30);
+        ctx.quadraticCurveTo(10, 35, 15, 30);
+        ctx.stroke();
+
+        // Eyes
+        ctx.fillStyle = '#3e2723';
+        ctx.beginPath(); ctx.arc(-25, -10, 8, 0, Math.PI*2); ctx.fill();
+        ctx.beginPath(); ctx.arc(25, -10, 8, 0, Math.PI*2); ctx.fill();
+        
+        // Eye Highlights
+        ctx.fillStyle = '#fff';
+        ctx.beginPath(); ctx.arc(-27, -12, 3, 0, Math.PI*2); ctx.fill();
+        ctx.beginPath(); ctx.arc(23, -12, 3, 0, Math.PI*2); ctx.fill();
+
+        // Blush
+        ctx.fillStyle = 'rgba(255, 182, 193, 0.4)';
+        ctx.beginPath(); ctx.ellipse(-40, 10, 10, 6, 0, 0, Math.PI*2); ctx.fill();
+        ctx.beginPath(); ctx.ellipse(40, 10, 10, 6, 0, 0, Math.PI*2); ctx.fill();
+
+        // Body (Shoulders visible)
+        ctx.fillStyle = furColor;
+        ctx.beginPath();
+        ctx.ellipse(0, 90, 60, 50, 0, Math.PI, 0); // Half oval
+        ctx.fill();
+        
+        // Paws (holding the bouquet edge)
+        ctx.fillStyle = furColor;
+        ctx.beginPath(); ctx.ellipse(-40, 70, 20, 15, -0.5, 0, Math.PI*2); ctx.fill();
+        ctx.beginPath(); ctx.ellipse(40, 70, 20, 15, 0.5, 0, Math.PI*2); ctx.fill();
+
+        // Bow Tie
+        ctx.fillStyle = '#d32f2f';
+        ctx.beginPath();
+        ctx.moveTo(0, 70);
+        ctx.lineTo(-15, 60);
+        ctx.lineTo(-15, 80);
+        ctx.lineTo(0, 70);
+        ctx.lineTo(15, 60);
+        ctx.lineTo(15, 80);
+        ctx.fill();
+
+        ctx.restore();
+    }
+
+    function initBouquet() {
+        bouquet = [];
+        const cx = width / 2;
+        const cy = height / 2 + 50; 
+
+        // 1. Create Roses
+        const count = 35; 
+        const spacing = 45;
+        
+        for (let i = 0; i < count; i++) {
+            const angle = i * 2.4; 
+            const radius = Math.sqrt(i) * spacing;
+            let x = cx + Math.cos(angle) * radius;
+            let y = (cy - 60) + Math.sin(angle) * (radius * 0.65); // Moved up slightly
+
+            let scale = random(0.8, 1.3);
+            let delay = i * 10; 
+
+            bouquet.push(new Rose(x, y, scale, delay));
+            
+            if (i % 2 === 0) {
+                 bouquet.push(new Filler(x + random(-20,20), y + random(-20,20), delay + 30));
+            }
+        }
+        
+        bouquet.sort((a, b) => a.y - b.y);
+    }
+
+    function drawWrapping() {
+        const cx = width / 2;
+        const cy = height / 2 + 50;
+
+        ctx.save();
+        // Back wrapping 
+        ctx.fillStyle = wrappingColor;
+        ctx.beginPath();
+        ctx.moveTo(cx - 180, cy - 150);
+        ctx.quadraticCurveTo(cx, cy - 280, cx + 180, cy - 150);
+        ctx.lineTo(cx, cy + 350);
+        ctx.fill();
+
+        // Inner wrapping
+        ctx.fillStyle = wrappingInner;
+        ctx.beginPath();
+        ctx.moveTo(cx - 150, cy - 120);
+        ctx.quadraticCurveTo(cx, cy - 240, cx + 150, cy - 120);
+        ctx.lineTo(cx, cy + 320);
+        ctx.fill();
+        ctx.restore();
+    }
+
+    function drawRibbon() {
+        const cx = width / 2;
+        const cy = height / 2 + 220;
+
+        ctx.save();
+        ctx.strokeStyle = '#5d4037'; 
+        ctx.lineWidth = 12;
+        ctx.lineCap = 'round';
+        
+        ctx.beginPath();
+        ctx.moveTo(cx - 60, cy);
+        ctx.quadraticCurveTo(cx, cy - 40, cx + 60, cy);
+        ctx.stroke();
+
+        ctx.beginPath();
+        ctx.moveTo(cx, cy);
+        ctx.quadraticCurveTo(cx - 40, cy + 80, cx - 60, cy + 140);
+        ctx.moveTo(cx, cy);
+        ctx.quadraticCurveTo(cx + 40, cy + 80, cx + 60, cy + 140);
+        ctx.stroke();
+        ctx.restore();
+    }
+
+    function animate() {
+        ctx.clearRect(0, 0, width, height);
+        
+        if (bouquet.length > 0) {
+            // 1. Draw Paper Wrapper
+            drawWrapping();
+
+            // 2. Draw Bear (Sitting inside/behind the front flowers)
+            // Adjust bear position to sit in the middle
+            drawBear(width/2, height/2 - 40);
+
+            // 3. Draw Flowers
+            bouquet.forEach(item => {
+                item.update();
+                item.draw(ctx);
+            });
+
+            // 4. Draw Ribbon (On top)
+            drawRibbon();
+        }
+        requestAnimationFrame(animate);
+    }
+
+</script>
+</body>
+</html>
