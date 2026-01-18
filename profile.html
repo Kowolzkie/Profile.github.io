@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Portfolio | Web Developer & Data Analyst</title>
+    <style>
+        /* --- RESET & BASICS --- */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: #0f0f0f; /* Deep Dark Background */
+            color: #e0e0e0;
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        a { text-decoration: none; color: inherit; transition: 0.3s; }
+        ul { list-style: none; }
+
+        /* --- VARIABLES --- */
+        :root {
+            --primary: #00ff88; /* Neon Green Accent */
+            --secondary: #7000ff; /* Deep Purple Accent */
+            --bg-card: #1a1a1a;
+            --text-muted: #a0a0a0;
+        }
+
+        /* --- NAVIGATION --- */
+        nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 10%;
+            position: fixed;
+            width: 100%;
+            background: rgba(15, 15, 15, 0.95);
+            backdrop-filter: blur(10px);
+            z-index: 1000;
+            border-bottom: 1px solid #333;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: var(--primary);
+            letter-spacing: 1px;
+        }
+
+        .nav-links { display: flex; gap: 30px; }
+        .nav-links a:hover { color: var(--primary); }
+
+        /* --- HERO SECTION --- */
+        .hero {
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: flex-start;
+            padding: 0 10%;
+            background: radial-gradient(circle at top right, rgba(112, 0, 255, 0.1), transparent 40%);
+        }
+
+        .hero h3 {
+            color: var(--primary);
+            font-size: 1.2rem;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .hero h1 {
+            font-size: 4rem;
+            font-weight: 800;
+            line-height: 1.1;
+            margin-bottom: 20px;
+        }
+
+        .hero h1 span { color: var(--secondary); }
+
+        .hero p {
+            max-width: 600px;
+            color: var(--text-muted);
+            font-size: 1.1rem;
+            margin-bottom: 30px;
+        }
+
+        .btn {
+            padding: 12px 30px;
+            background: transparent;
+            border: 2px solid var(--primary);
+            color: var(--primary);
+            font-weight: bold;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .btn:hover {
+            background: var(--primary);
+            color: #000;
+            box-shadow: 0 0 20px rgba(0, 255, 136, 0.4);
+        }
+
+        /* --- SKILLS SECTION --- */
+        .section { padding: 100px 10%; }
+        
+        .section-title {
+            font-size: 2rem;
+            margin-bottom: 40px;
+            border-left: 5px solid var(--secondary);
+            padding-left: 15px;
+        }
+
+        .skills-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+        }
+
+        .skill-card {
+            background: var(--bg-card);
+            padding: 30px;
+            border-radius: 10px;
+            border: 1px solid #333;
+            transition: 0.3s;
+        }
+
+        .skill-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--primary);
+        }
+
+        .skill-card h4 { margin-bottom: 10px; font-size: 1.2rem; }
+        .skill-card p { color: var(--text-muted); font-size: 0.9rem; }
+
+        /* --- PROJECTS SECTION --- */
+        .projects-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+        }
+
+        .project-card {
+            background: var(--bg-card);
+            border-radius: 10px;
+            overflow: hidden;
+            border: 1px solid #333;
+        }
+
+        .project-img {
+            height: 200px;
+            background: #252525;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #555;
+            font-size: 3rem;
+        }
+
+        .project-info { padding: 25px; }
+        .project-info h4 { margin-bottom: 10px; }
+        .project-info p { color: var(--text-muted); margin-bottom: 15px; font-size: 0.95rem;}
+
+        .tags span {
+            display: inline-block;
+            font-size: 0.8rem;
+            background: #333;
+            padding: 5px 10px;
+            border-radius: 15px;
+            margin-right: 5px;
+            color: #fff;
+        }
+
+        /* --- CONTACT --- */
+        .contact { text-align: center; padding: 100px 10%; background: #111; }
+        .contact h2 { font-size: 2.5rem; margin-bottom: 20px; }
+        .contact p { color: var(--text-muted); margin-bottom: 30px; }
+
+        /* --- RESPONSIVE --- */
+        @media (max-width: 768px) {
+            .hero h1 { font-size: 2.5rem; }
+            .nav-links { display: none; }
+        }
+    </style>
+</head>
+<body>
+
+    <nav>
+        <div class="logo">DEV<span style="color:#fff">.PROFILE</span></div>
+        <ul class="nav-links">
+            <li><a href="#about">About</a></li>
+            <li><a href="#skills">Skills</a></li>
+            <li><a href="#projects">Projects</a></li>
+            <li><a href="#contact">Contact</a></li>
+        </ul>
+    </nav>
+
+    <section class="hero" id="about">
+        <h3>Hello, I'm</h3>
+        <h1>Web Developer & <br><span>Data Analyst</span></h1>
+        <p>I build expert-level websites and turn complex data into actionable insights. Specialized in custom e-commerce solutions and modern web architecture.</p>
+        <a href="#contact"><button class="btn">Get In Touch</button></a>
+    </section>
+
+    <section class="section" id="skills">
+        <h2 class="section-title">Technical Arsenal</h2>
+        <div class="skills-grid">
+            <div class="skill-card">
+                <h4>WordPress & WooCommerce</h4>
+                <p>Expert in building custom themes, plugins, and high-performance e-commerce stores.</p>
+            </div>
+            <div class="skill-card">
+                <h4>Shopify & Wix</h4>
+                <p>Rapid deployment of storefronts with custom liquid coding and integrations.</p>
+            </div>
+            <div class="skill-card">
+                <h4>Data Analysis</h4>
+                <p>Transforming raw data into clear visualizations and business intelligence.</p>
+            </div>
+            <div class="skill-card">
+                <h4>Web Design</h4>
+                <p>Creating user-friendly, responsive interfaces with a focus on dark/modern aesthetics.</p>
+            </div>
+        </div>
+    </section>
+
+    <section class="section" id="projects">
+        <h2 class="section-title">Featured Projects</h2>
+        <div class="projects-grid">
+            
+            <div class="project-card">
+                <div class="project-img">🛍️</div>
+                <div class="project-info">
+                    <h4>E-Commerce Platform</h4>
+                    <p>A fully functional marketplace for digital items. Features secure checkout, user profiles, and inventory management.</p>
+                    <div class="tags">
+                        <span>WordPress</span>
+                        <span>WooCommerce</span>
+                        <span>PHP</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="project-card">
+                <div class="project-img">📊</div>
+                <div class="project-info">
+                    <h4>Analytics Dashboard</h4>
+                    <p>A data visualization tool that tracks sales trends and user engagement metrics.</p>
+                    <div class="tags">
+                        <span>Data Analysis</span>
+                        <span>Visualization</span>
+                        <span>SQL</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="project-card">
+                <div class="project-img">💻</div>
+                <div class="project-info">
+                    <h4>Corporate Landing Pages</h4>
+                    <p>High-conversion landing pages built on Wix and Shopify for various clients.</p>
+                    <div class="tags">
+                        <span>Shopify</span>
+                        <span>Wix</span>
+                        <span>CSS</span>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </section>
+
+    <section class="contact" id="contact">
+        <h2>Let's Work Together</h2>
+        <p>Currently available for freelance projects and full-time opportunities.</p>
+        <button class="btn">Email Me</button>
+    </section>
+
+</body>
+</html>
